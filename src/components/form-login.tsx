@@ -5,6 +5,7 @@ import {useState} from "react";
 import axios from "axios";
 import {ArrowLeftRight} from "lucide-react";
 import {useRouter} from "next/navigation";
+import {logout} from "@/app/actions/auth";
 
 interface User {
     name?: string | undefined;
@@ -33,10 +34,12 @@ export default function LoginComponent() {
     const handleSubmitLogin = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await axios.post<User>(`http://localhost:8080/api/login/enter`, data, {withCredentials: true});
+            console.log(data);
+            const response = await axios.post(`/api/login`, data, {withCredentials: true});
             if (response.status === 200) {
                 setReturnMessageOperation("Login realizado com sucesso!");
                 router.push("/profile");
+                router.refresh();
             }
             setData({
                 name: "",
@@ -80,33 +83,53 @@ export default function LoginComponent() {
     return (
         <form
             onSubmit={btnToogleAccess ? handleSubmitLogin : handleSubmitRegister}
-            className={"flex flex-col items-center justify-center w-[100vw] h-[100vh] m-0"}
+            className={"flex flex-col items-center justify-center h-[100vh] m-0"}
         >
             {btnToogleAccess ? (
-                <button className={"tracking-wider uppercase flex gap-0.5 items-center p-2 m-0"} onClick={() => setBtnToogleAccess(false)}>
+                <button type={"button"} className={"tracking-wider uppercase flex gap-0.5 items-center p-2 m-0"} onClick={() => setBtnToogleAccess(false)}>
                     <ArrowLeftRight size={15}/>
                     Login
                 </button>) : (
-                <button className={"tracking-wider uppercase flex gap-0.5 items-center p-2 m-0"} onClick={() => setBtnToogleAccess(true)}>
+                <button type={"button"} className={"tracking-wider uppercase flex gap-0.5 items-center p-2 m-0"} onClick={() => setBtnToogleAccess(true)}>
                     <ArrowLeftRight size={15}/>
                     Cadastro
                 </button>
             )}
-            <fieldset style={{boxShadow: "6px 6px 6px rgb(88, 138, 192)"}} className={"flex flex-col items-center gap-1.5 w-[50%] p-4 text-black bg-white border rounded-xl border-black dark:text-black dark:border-white"}>
-                <label className={"text-[18px]"} htmlFor="name">Nome: </label>
-                <input className={"input-theme"} type="text" name="name" id="name" value={data.name} onChange={handleChange}/>
+            {btnToogleAccess ? (
+                <p>Para entrar com a sua conta, basta preencher seus dados: </p>
+            ) : (
+                <p> Para criar uma nova conta, basta preencher os dados de registro abaixo: </p>
+            )}
+            {btnToogleAccess ? (
+                    <fieldset id={"screen-mobile"} style={{boxShadow: "6px 6px 6px rgb(88, 138, 192)"}} className={"flex flex-col items-center gap-1.5 w-[35vw] p-4 text-black bg-white border rounded-xl border-black dark:text-black dark:border-white"}>
+                        <label className={"text-[18px]"} htmlFor="email">E-mail: </label>
+                        <input className={"w-[13vw] input-theme"} type="email" name="email" id="email" value={data.email} onChange={handleChange}/>
 
-                <label className={"text-[18px]"} htmlFor="email">E-mail: </label>
-                <input className={"input-theme"} type="email" name="email" id="email" value={data.email} onChange={handleChange}/>
+                        <label className={"text-[18px]"} htmlFor="password">Senha: </label>
+                        <input className={"w-[13vw] input-theme"} type="password" name="password" id="password" value={data.password} onChange={handleChange}/>
 
-                <label className={"text-[18px]"} htmlFor="password">Senha: </label>
-                <input className={"input-theme"} type="password" name="password" id="password" value={data.password} onChange={handleChange}/>
+                        <button className={"btn-theme"}
+                                type="submit">Login
+                        </button>
+                        <p>{returnMessageOperation}</p>
+                    </fieldset>
+                ) : (
+                <fieldset id={"screen-mobile"} style={{boxShadow: "6px 6px 6px rgb(88, 138, 192)"}} className={"flex flex-col items-center gap-1.5 w-[35vw] p-4 text-black bg-white border rounded-xl border-black dark:text-black dark:border-white"}>
+                    <label className={"text-[18px]"} htmlFor="name">Nome: </label>
+                    <input className={"w-[13vw] input-theme"} type="text" name="name" id="name" value={data.name} onChange={handleChange}/>
 
-                <button className={"btn-theme"}
-                        type="submit">Login
-                </button>
-                <p>{returnMessageOperation}</p>
-            </fieldset>
+                    <label className={"text-[18px]"} htmlFor="email">E-mail: </label>
+                    <input className={"w-[13vw] input-theme"} type="email" name="email" id="email" value={data.email} onChange={handleChange}/>
+
+                    <label className={"text-[18px]"} htmlFor="password">Senha: </label>
+                    <input className={"w-[13vw] input-theme"} type="password" name="password" id="password" value={data.password} onChange={handleChange}/>
+
+                    <button className={"btn-theme"}
+                            type="submit">Login
+                    </button>
+                    <p>{returnMessageOperation}</p>
+                </fieldset>
+            )}
         </form>
     );
 }
